@@ -66,7 +66,15 @@ namespace DrinkAndGo.Controllers
                 {
                     return RedirectToAction("LoggedIn", "Account");
                 }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                }
             }
+
             return View(loginViewModel);
         }
 

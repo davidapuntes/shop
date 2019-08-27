@@ -7,6 +7,10 @@
         <form asp-controller="Account" asp-action="Login" method="post" class="form-horizontal" role="form">
             <h4>Enter your details below</h4>
             <hr />
+            @if (ViewData.ModelState[""] != null && ViewData.ModelState[""].Errors.Count > 0)
+            {
+                <div asp-validation-summary="All" class="alert alert-danger"></div>
+            }
             <input type="hidden" asp-for="ReturnUrl" />
             <div class="form-group">
                 <label asp-for="UserName" class="col-md-2 control-label"></label>

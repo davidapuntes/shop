@@ -9,29 +9,26 @@ using Microsoft.EntityFrameworkCore;
 using DrinkAndGo.Data.Repositories;
 using DrinkAndGo.Data.Interfaces;
 using DrinkAndGo.Data.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System.Data.SqlClient;
+using Microsoft.AspNetCore.Identity;
 
 namespace DrinkAndGo
 {
     public class Startup
     {
-        private IConfigurationRoot _configurationRoot;
-        public Startup(IHostingEnvironment hostingEnvironment)
+        public Startup(IConfiguration configuration)
         {
-            _configurationRoot = new ConfigurationBuilder()
-                .SetBasePath(hostingEnvironment.ContentRootPath)
-                .AddJsonFile("appsettings.json")
-                .Build();
+            Configuration = configuration;
         }
+        public IConfiguration Configuration { get; }
+
         public void ConfigureServices(IServiceCollection services)
         {
-            //Server configuration
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(_configurationRoot.GetConnectionString("DefaultConnection")));
-            //Authentication, Identity config
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<AppDbContext>();
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
 
             services.AddTransient<ICategoryRepository, CategoryRepository>();
             services.AddTransient<IDrinkRepository, DrinkRepository>();
@@ -51,7 +48,8 @@ namespace DrinkAndGo
             app.UseStatusCodePages();
             app.UseStaticFiles();
             app.UseSession();
-            app.UseIdentity();
+            app.UseAuthentication();
+
 
             app.UseMvc(routes =>
             {
@@ -70,7 +68,6 @@ namespace DrinkAndGo
                     template: "{controller=Home}/{action=Index}/{Id?}");
             });
 
-            DbInitializer.Seed(app);
         }
     }
 }
